@@ -3,6 +3,7 @@ import {
   bigint,
   index,
   int,
+  mysqlEnum,
   mysqlTableCreator,
   primaryKey,
   text,
@@ -19,6 +20,7 @@ import { type AdapterAccount } from "next-auth/adapters";
  */
 export const mysqlTable = mysqlTableCreator((name) => `todos-14_${name}`);
 
+// Example table
 export const posts = mysqlTable(
   "post",
   {
@@ -33,9 +35,10 @@ export const posts = mysqlTable(
   (example) => ({
     createdByIdIdx: index("createdById_idx").on(example.createdById),
     nameIndex: index("name_idx").on(example.name),
-  })
+  }),
 );
 
+// User & Auth tables
 export const users = mysqlTable("user", {
   id: varchar("id", { length: 255 }).notNull().primaryKey(),
   name: varchar("name", { length: 255 }),
@@ -45,10 +48,13 @@ export const users = mysqlTable("user", {
     fsp: 3,
   }).default(sql`CURRENT_TIMESTAMP(3)`),
   image: varchar("image", { length: 255 }),
+  role: mysqlEnum("role", ["ADMIN", "USER", "RESTRICTED"]).default("USER"),
 });
 
 export const usersRelations = relations(users, ({ many }) => ({
   accounts: many(accounts),
+  tasks: many(tasks),
+  comments: many(comments),
 }));
 
 export const accounts = mysqlTable(
@@ -71,7 +77,7 @@ export const accounts = mysqlTable(
   (account) => ({
     compoundKey: primaryKey(account.provider, account.providerAccountId),
     userIdIdx: index("userId_idx").on(account.userId),
-  })
+  }),
 );
 
 export const accountsRelations = relations(accounts, ({ one }) => ({
@@ -89,7 +95,7 @@ export const sessions = mysqlTable(
   },
   (session) => ({
     userIdIdx: index("userId_idx").on(session.userId),
-  })
+  }),
 );
 
 export const sessionsRelations = relations(sessions, ({ one }) => ({
@@ -105,5 +111,56 @@ export const verificationTokens = mysqlTable(
   },
   (vt) => ({
     compoundKey: primaryKey(vt.identifier, vt.token),
-  })
+  }),
 );
+
+export const tasks = mysqlTable(
+  "task",
+  {
+    id: bigint("id", { mode: "number" }).primaryKey().autoincrement(),
+    name: varchar("name", { length: 256 }),
+    owner: varchar("owner", { length: 255 }).notNull(),
+    createdAt: timestamp("created_at")
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    updatedAt: timestamp("updatedAt").onUpdateNow(),
+    timesToComplete: int("timesToComplete").default(1),
+    timeframe: mysqlEnum("timeframe", [
+      "DAY",
+      "WEEK",
+      "FORTNIGHT",
+      "MONTH",
+    ]).default("DAY"),
+    completedAt: timestamp("completedAt").default(sql`NULL`),
+  },
+  (task) => ({
+    createdByIdIdx: index("createdById_idx").on(task.owner),
+    nameIndex: index("name_idx").on(task.name),
+  }),
+);
+
+export const tasksRelations = relations(tasks, ({ one, many }) => ({
+  user: one(users, { fields: [tasks.owner], references: [users.id] }),
+  comments: many(comments),
+}));
+
+export const comments = mysqlTable(
+  "comment",
+  {
+    id: bigint("id", { mode: "number" }).primaryKey().autoincrement(),
+    taskId: bigint("taskId", { mode: "number" }).notNull(),
+    content: text("content").notNull(),
+    createdAt: timestamp("created_at")
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    updatedAt: timestamp("updatedAt").onUpdateNow(),
+  },
+  (comment) => ({
+    taskIdIdx: index("taskId_idx").on(comment.taskId),
+  }),
+);
+
+export const commentsRelations = relations(comments, ({ one }) => ({
+  task: one(tasks, { fields: [comments.taskId], references: [tasks.id] }),
+  users: one(users, { fields: [comments.taskId], references: [users.id] }),
+}));

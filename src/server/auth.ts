@@ -4,7 +4,7 @@ import {
   type DefaultSession,
   type NextAuthOptions,
 } from "next-auth";
-import DiscordProvider from "next-auth/providers/discord";
+import GoogleProvider from "next-auth/providers/google";
 
 import { env } from "~/env.mjs";
 import { db } from "~/server/db";
@@ -16,19 +16,23 @@ import { mysqlTable } from "~/server/db/schema";
  *
  * @see https://next-auth.js.org/getting-started/typescript#module-augmentation
  */
+
+type UserRole = "admin" | "user" | "restricted";
+
 declare module "next-auth" {
   interface Session extends DefaultSession {
     user: {
       id: string;
-      // ...other properties
-      // role: UserRole;
+      role: UserRole;
     } & DefaultSession["user"];
   }
 
-  // interface User {
-  //   // ...other properties
-  //   // role: UserRole;
-  // }
+  interface User {
+    name?: string | null;
+    email?: string | null;
+    image?: string | null;
+    role?: UserRole | null;
+  }
 }
 
 /**
@@ -43,15 +47,28 @@ export const authOptions: NextAuthOptions = {
       user: {
         ...session.user,
         id: user.id,
+        role: user.role,
       },
     }),
   },
+  // Error in adapter
   adapter: DrizzleAdapter(db, mysqlTable),
   providers: [
-    DiscordProvider({
-      clientId: env.DISCORD_CLIENT_ID,
-      clientSecret: env.DISCORD_CLIENT_SECRET,
+    GoogleProvider({
+      clientId: env.GOOGLE_ID ? env.GOOGLE_ID : "",
+      clientSecret: env.GOOGLE_SECRET ? env.GOOGLE_SECRET : "",
+      authorization: {
+        params: {
+          prompt: "consent",
+          access_type: "offline",
+          response_type: "code",
+        },
+      },
     }),
+    // DiscordProvider({
+    //   clientId: env.DISCORD_CLIENT_ID,
+    //   clientSecret: env.DISCORD_CLIENT_SECRET,
+    // }),
     /**
      * ...add more providers here.
      *

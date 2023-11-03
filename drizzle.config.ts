@@ -6,10 +6,7 @@ export default {
   schema: "./src/server/db/schema.ts",
   driver: "mysql2",
   dbCredentials: {
-    database: "main",
-    host: env.DATABASE_HOST,
-    user: env.DATABASE_USERNAME,
-    password: env.DATABASE_PASSWORD,
+    connectionString: env.DATABASE_URL,
   },
   tablesFilter: ["todos_*"],
 } satisfies Config;
