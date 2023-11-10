@@ -10,7 +10,7 @@ export const env = createEnv({
     DATABASE_URL: z.string().min(1),
     NODE_ENV: z
       .enum(["development", "test", "production"])
-      .default("development"),
+      .default("production"),
     NEXTAUTH_SECRET:
       process.env.NODE_ENV === "production"
         ? z.string()
