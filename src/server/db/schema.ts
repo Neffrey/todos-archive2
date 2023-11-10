@@ -1,6 +1,9 @@
+// import "server-only"; // Make sure you can't import this on client
+
 import { relations, sql } from "drizzle-orm";
 import {
   bigint,
+  boolean,
   index,
   int,
   mysqlEnum,
@@ -18,25 +21,7 @@ import { type AdapterAccount } from "next-auth/adapters";
  *
  * @see https://orm.drizzle.team/docs/goodies#multi-project-schema
  */
-export const mysqlTable = mysqlTableCreator((name) => `todos-14_${name}`);
-
-// Example table
-export const posts = mysqlTable(
-  "post",
-  {
-    id: bigint("id", { mode: "number" }).primaryKey().autoincrement(),
-    name: varchar("name", { length: 256 }),
-    createdById: varchar("createdById", { length: 255 }).notNull(),
-    createdAt: timestamp("created_at")
-      .default(sql`CURRENT_TIMESTAMP`)
-      .notNull(),
-    updatedAt: timestamp("updatedAt").onUpdateNow(),
-  },
-  (example) => ({
-    createdByIdIdx: index("createdById_idx").on(example.createdById),
-    nameIndex: index("name_idx").on(example.name),
-  }),
-);
+export const mysqlTable = mysqlTableCreator((name) => `todos_14_${name}`);
 
 // User & Auth tables
 export const users = mysqlTable("user", {
@@ -118,8 +103,8 @@ export const tasks = mysqlTable(
   "task",
   {
     id: bigint("id", { mode: "number" }).primaryKey().autoincrement(),
-    name: varchar("name", { length: 256 }),
-    owner: varchar("owner", { length: 255 }).notNull(),
+    title: varchar("title", { length: 256 }),
+    user: varchar("user", { length: 255 }).notNull(),
     createdAt: timestamp("created_at")
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
@@ -134,14 +119,42 @@ export const tasks = mysqlTable(
     completedAt: timestamp("completedAt").default(sql`NULL`),
   },
   (task) => ({
-    createdByIdIdx: index("createdById_idx").on(task.owner),
-    nameIndex: index("name_idx").on(task.name),
+    createdByIdIdx: index("createdById_idx").on(task.user),
+    nameIndex: index("name_idx").on(task.title),
   }),
 );
 
 export const tasksRelations = relations(tasks, ({ one, many }) => ({
-  user: one(users, { fields: [tasks.owner], references: [users.id] }),
+  user: one(users, { fields: [tasks.user], references: [users.id] }),
+  taskCompletions: many(taskCompletions),
   comments: many(comments),
+}));
+
+export const taskCompletions = mysqlTable(
+  "taskCompletion",
+  {
+    id: bigint("id", { mode: "number" }).primaryKey().autoincrement(),
+    taskId: bigint("taskId", { mode: "number" }).notNull(),
+    user: varchar("user", { length: 255 }).notNull(),
+    timeframeCompletion: boolean("timeframeCompletion").default(false),
+    completedAt: timestamp("completedAt")
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+  },
+  (taskCompletion) => ({
+    tcompIdIdx: index("tcompId_idx").on(taskCompletion.id),
+  }),
+);
+
+export const tcRelations = relations(taskCompletions, ({ one }) => ({
+  task: one(tasks, {
+    fields: [taskCompletions.taskId],
+    references: [tasks.id],
+  }),
+  users: one(users, {
+    fields: [taskCompletions.taskId],
+    references: [users.id],
+  }),
 }));
 
 export const comments = mysqlTable(

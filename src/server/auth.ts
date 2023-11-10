@@ -1,4 +1,5 @@
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
+import { eq } from "drizzle-orm";
 import {
   getServerSession,
   type DefaultSession,
@@ -8,7 +9,7 @@ import GoogleProvider from "next-auth/providers/google";
 
 import { env } from "~/env.mjs";
 import { db } from "~/server/db";
-import { mysqlTable } from "~/server/db/schema";
+import { mysqlTable, users } from "~/server/db/schema";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -17,17 +18,17 @@ import { mysqlTable } from "~/server/db/schema";
  * @see https://next-auth.js.org/getting-started/typescript#module-augmentation
  */
 
-type UserRole = "admin" | "user" | "restricted";
+export type UserRole = (typeof users.role.enumValues)[number];
 
 declare module "next-auth" {
-  interface Session extends DefaultSession {
+  export interface Session {
     user: {
       id: string;
-      role: UserRole;
+      role?: UserRole | null;
     } & DefaultSession["user"];
   }
 
-  interface User {
+  export interface User {
     name?: string | null;
     email?: string | null;
     image?: string | null;
@@ -42,16 +43,20 @@ declare module "next-auth" {
  */
 export const authOptions: NextAuthOptions = {
   callbacks: {
-    session: ({ session, user }) => ({
+    session: async ({ session, user }) => ({
       ...session,
       user: {
         ...session.user,
         id: user.id,
-        role: user.role,
+        role: session.user.role
+          ? session.user.role
+          : await db.query.users
+              .findFirst({ where: eq(users.id, user.id) })
+              .then((user) => user?.role),
       },
     }),
   },
-  // Error in adapter
+
   adapter: DrizzleAdapter(db, mysqlTable),
   providers: [
     GoogleProvider({
@@ -65,10 +70,7 @@ export const authOptions: NextAuthOptions = {
         },
       },
     }),
-    // DiscordProvider({
-    //   clientId: env.DISCORD_CLIENT_ID,
-    //   clientSecret: env.DISCORD_CLIENT_SECRET,
-    // }),
+
     /**
      * ...add more providers here.
      *
