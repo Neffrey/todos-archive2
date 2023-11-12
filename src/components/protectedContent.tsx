@@ -1,9 +1,8 @@
-"use server";
+"use client";
 
 // LIBS
-import "server-only";
 import { type ReactNode } from "react";
-import { getServerAuthSession } from "~/server/auth";
+import { useSession } from "next-auth/react";
 
 // TYPES
 import { type UserRole } from "~/server/auth";
@@ -11,29 +10,29 @@ import { type UserRole } from "~/server/auth";
 type ProtectedContentProps = {
   children: ReactNode;
   fallback?: ReactNode;
-  authedRoles: UserRole[];
+  authedRoles?: UserRole[] | undefined;
 };
 
-const ProtectedContent = async ({
+const ProtectedContent = ({
   children,
   fallback,
   authedRoles,
 }: ProtectedContentProps) => {
-  const session = await getServerAuthSession();
-  const hasRole = session?.user?.role
-    ? authedRoles.includes(session.user.role)
-    : false;
+  const { data: session } = useSession();
 
-  return (
-    <>
-      {() => {
-        if (fallback) {
-          return hasRole ? children : fallback;
-        }
-        return hasRole ? children : null;
-      }}
-    </>
-  );
+  const checkRoles = () => {
+    if (!authedRoles) return true;
+    if (session?.user?.role) {
+      return authedRoles.includes(session.user.role);
+    }
+    return false;
+  };
+  const hasRole = checkRoles();
+
+  if (fallback) {
+    return hasRole ? children : fallback;
+  }
+  return hasRole ? children : <> </>;
 };
 
 export default ProtectedContent;

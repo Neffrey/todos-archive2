@@ -25,7 +25,8 @@ export const metadata: Metadata = {
   description: "Just a quick lil starter template",
 };
 
-const RootLayout = ({ children }: { children: ReactNode }) => {
+const RootLayout = /* async */ ({ children }: { children: ReactNode }) => {
+  // await Promise.resolve();
   return (
     <SessionProvider>
       <HtmlWrapper>
