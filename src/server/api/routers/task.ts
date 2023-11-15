@@ -9,12 +9,24 @@ import {
   protectedUserProcedure,
   userProcedure,
 } from "~/server/api/trpc";
-import { tasks } from "~/server/db/schema";
+import { tasks, TASK_TIMEFRAMES } from "~/server/db/schema";
 
 export const taskRouter = createTRPCRouter({
-  get: userProcedure.query(async ({ ctx }) => {
+  // getOne: userProcedure
+  //   .input(
+  //     z.object({
+  //       id: z.string().min(1),
+  //     }),
+  //   )
+  //   .query(async ({ ctx }) => {
+  //     return await ctx.db.query.tasks.findMany({
+  //       where: eq(tasks.user, ctx.session.user.id),
+  //     });
+  //   }),
+  getAll: userProcedure.query(async ({ ctx }) => {
     return await ctx.db.query.tasks.findMany({
       where: eq(tasks.user, ctx.session.user.id),
+      with: { comments: true, taskCompletions: true },
     });
   }),
   create: protectedUserProcedure
@@ -22,7 +34,7 @@ export const taskRouter = createTRPCRouter({
       z.object({
         title: z.string().min(1),
         timesToComplete: z.number().int().min(1),
-        timeframe: z.enum(["DAY", "WEEK", "FORTNIGHT", "MONTH"]),
+        timeframe: z.enum(TASK_TIMEFRAMES),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -39,7 +51,7 @@ export const taskRouter = createTRPCRouter({
         id: z.number().int().min(1),
         title: z.string().min(1),
         timesToComplete: z.number().int().min(1),
-        timeframe: z.enum(["DAY", "WEEK", "FORTNIGHT", "MONTH"]),
+        timeframe: z.enum(TASK_TIMEFRAMES),
       }),
     )
     .mutation(async ({ ctx, input }) => {

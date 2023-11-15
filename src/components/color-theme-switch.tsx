@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "~/components/ui/button";
-import useThemeStore from "~/components/stores/themeStore";
+import useThemeStore from "~/components/stores/theme-store";
 
 const ColorThemeSwitch = () => {
   const currentTheme = useThemeStore((state) => state.currentTheme);
@@ -17,7 +17,7 @@ const ColorThemeSwitch = () => {
           Toggle Drawer
         </Button>
       </div>
-      <div className="bg-background text-foreground h-40 w-40">
+      <div className="h-40 w-40 bg-background text-foreground">
         COLORIZE ME!?!
       </div>
     </div>

@@ -1,3 +1,4 @@
+// LIBS
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import { eq } from "drizzle-orm";
 import {
@@ -7,9 +8,10 @@ import {
 } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 
+// UTILS
 import { env } from "~/env.mjs";
 import { db } from "~/server/db";
-import { mysqlTable, users } from "~/server/db/schema";
+import { type UserRole, mysqlTable, users } from "~/server/db/schema";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -17,8 +19,6 @@ import { mysqlTable, users } from "~/server/db/schema";
  *
  * @see https://next-auth.js.org/getting-started/typescript#module-augmentation
  */
-
-export type UserRole = (typeof users.role.enumValues)[number];
 
 declare module "next-auth" {
   export interface Session {

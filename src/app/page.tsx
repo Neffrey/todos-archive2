@@ -1,53 +1,35 @@
-// LIBRARIES
-import Link from "next/link";
-
 // COMPONENTS
-import LoginTesting from "~/components/component-tests/login-testing";
-import CreateTaskModal from "~/components/create-task-modal";
-import ChevronDown from "~/components/svgs/ChevronDown";
+import CreateTaskModal, { LoginBtn } from "~/components/create-task-modal";
+import ProtectedContent from "~/components/protectedContent";
+import TaskTableController from "~/components/tables/tasks/table-controller";
 
 const Home = () => {
   return (
     <main className="flex min-h-screen w-full flex-col">
       <div
         // HERO ROW
-        className="flex w-full flex-col items-center justify-center gap-12 bg-gradient-to-br from-secondary to-secondary/50 px-4 py-16"
+        className="from-bg to-bg/50 flex w-full flex-wrap items-center justify-around gap-12 bg-gradient-to-br px-4 py-16 md:justify-center md:px-20"
       >
-        <div className="flex flex-col gap-5">
-          <h1 className="w-full text-center text-5xl font-extrabold tracking-wider text-secondary-foreground sm:text-[5rem]">
+        <div className="flex w-full flex-col gap-5 md:w-1/2 lg:w-1/3">
+          <h1 className="text-bg-foreground w-full text-center text-5xl font-extrabold tracking-wider sm:text-[5rem]">
             nToDos
           </h1>
-          <h2 className="w-full text-center text-xl tracking-wider text-secondary-foreground">
+          <h2 className="text-bg-foreground w-full text-center text-xl tracking-wider">
             Just a lil todo app by Neffrey
           </h2>
         </div>
-        <div className="flex items-center justify-center gap-5">
-          <CreateTaskModal />
-          {/* <Link href="/" passHref tabIndex={-1}>
-            <Button
-              size={"lg"}
-              variant={"default"}
-              className="text rounded-xl px-8 py-5 text-xl font-bold"
-            >
-              View Tasks
-            </Button>
-          </Link> */}
+        <div className="flex w-full items-center justify-center md:w-1/2 lg:w-1/5">
+          <ProtectedContent
+            authedRoles={["ADMIN", "USER"]}
+            fallback={<LoginBtn />}
+          >
+            <CreateTaskModal />
+          </ProtectedContent>
         </div>
-        <Link
-          // Scroll down chevron
-          href="./#"
-          className="mb-2 h-12 w-12 cursor-pointer text-6xl transition ease-linear hover:mb-0 hover:h-14 hover:w-14 hover:-translate-y-1 hover:scale-105"
-          passHref
-        >
-          <ChevronDown className="fill-secondary-foreground" />
-        </Link>
+        <ProtectedContent authedRoles={["ADMIN", "USER", "RESTRICTED"]}>
+          <TaskTableController />
+        </ProtectedContent>
       </div>
-      {/* <CompTests />
-      <div className="flex w-full justify-center gap-10 p-10">
-        <h2 className="text-2xl">TrpcTest</h2>
-        <TrpcTest />
-      </div> */}
-      <LoginTesting />
     </main>
   );
 };

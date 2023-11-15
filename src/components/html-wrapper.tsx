@@ -2,11 +2,11 @@
 
 // LIBRARIES
 import { useTheme } from "next-themes";
-import { ReactNode, useEffect } from "react";
+import { type ReactNode, useEffect } from "react";
 import { themeChange } from "theme-change";
 
 // COMPONENTS
-import useThemeStore from "~/components/stores/themeStore";
+import useThemeStore from "~/components/stores/theme-store";
 
 type Props = {
   children: ReactNode;

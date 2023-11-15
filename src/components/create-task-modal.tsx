@@ -1,14 +1,16 @@
 "use client";
 
 // LIBS
-import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 
 // UITLS
 import { api } from "~/trpc/react";
+import { TASK_TIMEFRAMES } from "~/server/db/schema";
 
 // COMPONENTS
 import { Button } from "~/components/ui/button";
@@ -35,9 +37,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
+import { useToast } from "~/components/ui/use-toast";
+import { FaCheck } from "react-icons/fa";
 
 const TIMES_TO_COMPLETE_MAX = 10;
-const TIMEFRAME_VALUES = ["DAY", "WEEK", "FORTNIGHT", "MONTH"] as const;
 const timesToCompleteItems = Array.from(
   { length: TIMES_TO_COMPLETE_MAX },
   (_, i) => i + 1,
@@ -47,20 +50,30 @@ const formSchema = z.object({
     message: "Title must be at least 3 characters.",
   }),
   timesToComplete: z.string().min(1),
-  timeframe: z.enum(TIMEFRAME_VALUES),
+  timeframe: z.enum(TASK_TIMEFRAMES),
 });
+
+// FALLBACK - LOGIN BTN
+export const LoginBtn = () => {
+  return (
+    <Button className="px-10 py-6 text-xl" onClick={() => signIn("google")}>
+      Login
+    </Button>
+  );
+};
 
 // COMPONENT
 const CreateTaskModal = () => {
   const router = useRouter();
   const [open, setOpen] = useState(false);
+  const { toast } = useToast();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
       timesToComplete: "1",
-      timeframe: "DAY",
+      timeframe: TASK_TIMEFRAMES[0],
     },
   });
 
@@ -72,7 +85,6 @@ const CreateTaskModal = () => {
   });
 
   const handleSubmit = (values: z.infer<typeof formSchema>) => {
-    console.log("submitted form values", values);
     const validatedValues = {
       title: values.title,
       timesToComplete: parseInt(values.timesToComplete),
@@ -80,12 +92,20 @@ const CreateTaskModal = () => {
     };
     createTask.mutate(validatedValues);
     setOpen(false);
+    toast({
+      action: (
+        <div className="flex h-full w-full items-center justify-between">
+          <FaCheck className="text-2xl" />
+          {`Task "${validatedValues.title}" created successfully!`}
+        </div>
+      ),
+    });
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="rounded-xl px-8 py-6 text-xl font-bold">
+        <Button className="rounded-xl px-8 py-6 text-lg font-bold lg:text-xl">
           Create Task
         </Button>
       </DialogTrigger>
@@ -154,12 +174,11 @@ const CreateTaskModal = () => {
                         <h2 className="text-md">Per Timeframe</h2>
                         <FormControl>
                           <RadioGroup
-                            // id="timeframe"
                             onValueChange={field.onChange}
                             defaultValue={field.value}
                             className="flex flex-col space-y-1"
                           >
-                            {TIMEFRAME_VALUES.map((item) => {
+                            {TASK_TIMEFRAMES.map((item) => {
                               return (
                                 <FormItem
                                   key={`timeframe-${item.toLowerCase()}`}
@@ -192,33 +211,6 @@ const CreateTaskModal = () => {
                 className="rounded-xl px-8 py-6 text-xl font-bold"
               >
                 Create Task
-              </Button>
-              <Button
-                className="rounded-xl px-8 py-6 text-xl font-bold"
-                onClick={(e) => {
-                  e.preventDefault();
-                  form.reset();
-                }}
-              >
-                Reset Form Values
-              </Button>
-              <Button
-                className="rounded-xl px-8 py-6 text-xl font-bold"
-                onClick={(e) => {
-                  e.preventDefault();
-                  console.log("form-values", form.getValues());
-                }}
-              >
-                Log Form Values
-              </Button>
-              <Button
-                className="rounded-xl px-8 py-6 text-xl font-bold"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setOpen(false);
-                }}
-              >
-                Close Form
               </Button>
             </form>
           </Form>

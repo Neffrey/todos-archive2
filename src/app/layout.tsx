@@ -3,19 +3,19 @@ import "~/app/globals.css";
 
 // LIBRARIES
 import type { Metadata } from "next";
-import { type ReactNode } from "react";
 import { headers } from "next/headers";
+import { type ReactNode } from "react";
 
 // UTILS
 import { TRPCReactProvider } from "~/trpc/react";
 
 // COMPONENTS
-import SessionProvider from "~/components/providers/session-provider";
 import Footer from "~/components/footer";
 import Header from "~/components/header";
 import UseOnRender from "~/components/hooks/use-on-render";
 import HtmlWrapper from "~/components/html-wrapper";
 import LightDarkProvider from "~/components/providers/light-dark-provider";
+import SessionProvider from "~/components/providers/session-provider";
 import ThemeDrawer from "~/components/theme-drawer";
 import LoadingSpinner from "~/components/ui/loading-spinner";
 import { Toaster } from "~/components/ui/toaster";
@@ -25,8 +25,7 @@ export const metadata: Metadata = {
   description: "Just a quick lil starter template",
 };
 
-const RootLayout = /* async */ ({ children }: { children: ReactNode }) => {
-  // await Promise.resolve();
+const RootLayout = ({ children }: { children: ReactNode }) => {
   return (
     <SessionProvider>
       <HtmlWrapper>

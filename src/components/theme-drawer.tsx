@@ -8,7 +8,7 @@ import { FaStar, FaMoon, FaSun, FaTimes } from "react-icons/fa";
 import { useTheme } from "next-themes";
 
 // COMPONENTS
-import useThemeStore from "~/components/stores/themeStore";
+import useThemeStore from "~/components/stores/theme-store";
 import { Switch } from "~/components/ui/switch";
 import UseOnRender from "~/components/hooks/use-on-render";
 

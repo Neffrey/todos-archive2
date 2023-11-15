@@ -1,5 +1,6 @@
 // import "server-only"; // Make sure you can't import this on client
 
+import { type AdapterAccount } from "next-auth/adapters";
 import { relations, sql } from "drizzle-orm";
 import {
   bigint,
@@ -13,7 +14,6 @@ import {
   timestamp,
   varchar,
 } from "drizzle-orm/mysql-core";
-import { type AdapterAccount } from "next-auth/adapters";
 
 /**
  * This is an example of how to use the multi-project schema feature of Drizzle ORM. Use the same
@@ -22,6 +22,12 @@ import { type AdapterAccount } from "next-auth/adapters";
  * @see https://orm.drizzle.team/docs/goodies#multi-project-schema
  */
 export const mysqlTable = mysqlTableCreator((name) => `todos_14_${name}`);
+
+export const USER_ROLES = ["ADMIN", "USER", "RESTRICTED"] as const;
+export type UserRole = (typeof users.role.enumValues)[number];
+
+export const TASK_TIMEFRAMES = ["DAY", "WEEK", "FORTNIGHT", "MONTH"] as const;
+export type TaskTimeframe = (typeof tasks.timeframe.enumValues)[number];
 
 // User & Auth tables
 export const users = mysqlTable("user", {
@@ -33,7 +39,7 @@ export const users = mysqlTable("user", {
     fsp: 3,
   }).default(sql`CURRENT_TIMESTAMP(3)`),
   image: varchar("image", { length: 255 }),
-  role: mysqlEnum("role", ["ADMIN", "USER", "RESTRICTED"]).default("USER"),
+  role: mysqlEnum("role", USER_ROLES).default(USER_ROLES[1]),
 });
 
 export const usersRelations = relations(users, ({ many }) => ({
@@ -103,20 +109,19 @@ export const tasks = mysqlTable(
   "task",
   {
     id: bigint("id", { mode: "number" }).primaryKey().autoincrement(),
-    title: varchar("title", { length: 256 }),
+    title: varchar("title", { length: 256 }).notNull(),
     user: varchar("user", { length: 255 }).notNull(),
+    timesToComplete: int("timesToComplete").default(1).notNull(),
+    timeframe: mysqlEnum("timeframe", TASK_TIMEFRAMES)
+      .default(TASK_TIMEFRAMES[0])
+      .notNull(),
     createdAt: timestamp("created_at")
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
-    updatedAt: timestamp("updatedAt").onUpdateNow(),
-    timesToComplete: int("timesToComplete").default(1),
-    timeframe: mysqlEnum("timeframe", [
-      "DAY",
-      "WEEK",
-      "FORTNIGHT",
-      "MONTH",
-    ]).default("DAY"),
-    completedAt: timestamp("completedAt").default(sql`NULL`),
+    updatedAt: timestamp("updatedAt")
+      .default(sql`CURRENT_TIMESTAMP`)
+      .onUpdateNow()
+      .notNull(),
   },
   (task) => ({
     createdByIdIdx: index("createdById_idx").on(task.user),
@@ -136,9 +141,15 @@ export const taskCompletions = mysqlTable(
     id: bigint("id", { mode: "number" }).primaryKey().autoincrement(),
     taskId: bigint("taskId", { mode: "number" }).notNull(),
     user: varchar("user", { length: 255 }).notNull(),
-    timeframeCompletion: boolean("timeframeCompletion").default(false),
-    completedAt: timestamp("completedAt")
+    timeframeCompletion: boolean("timeframeCompletion")
+      .default(false)
+      .notNull(),
+    createdAt: timestamp("created_at")
       .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    updatedAt: timestamp("updatedAt")
+      .default(sql`CURRENT_TIMESTAMP`)
+      .onUpdateNow()
       .notNull(),
   },
   (taskCompletion) => ({
@@ -166,7 +177,10 @@ export const comments = mysqlTable(
     createdAt: timestamp("created_at")
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
-    updatedAt: timestamp("updatedAt").onUpdateNow(),
+    updatedAt: timestamp("updatedAt")
+      .default(sql`CURRENT_TIMESTAMP`)
+      .onUpdateNow()
+      .notNull(),
   },
   (comment) => ({
     taskIdIdx: index("taskId_idx").on(comment.taskId),

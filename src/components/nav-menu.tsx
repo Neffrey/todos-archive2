@@ -8,7 +8,8 @@ import ProtectedContent from "~/components/protectedContent";
 import { Button } from "~/components/ui/button";
 
 // TYPES
-import { type UserRole } from "~/server/auth";
+import { type UserRole } from "~/server/db/schema";
+import ChangeThemeBtn from "./change-theme-btn";
 
 type NavItems = {
   title: string;
@@ -43,9 +44,7 @@ const NavMenu = () => {
       <Link href="account" tabIndex={-1}>
         <Button variant={"ghost"}>My Account</Button>
       </Link>
-      {/* <Button variant={"secondary"} onClick={toggleDrawer}>
-          Change Theme
-        </Button> */}
+      <ChangeThemeBtn />
     </div>
   );
 };
