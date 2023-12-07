@@ -1,13 +1,13 @@
-// LIBS
-import { and, desc, eq } from "drizzle-orm";
-import "server-only"; // Make sure you can't import this on client
-import { z } from "zod";
+import "server-only";
+
+// Make sure you can't import this on client// LIBS
 import { TRPCError } from "@trpc/server";
+import { and, desc, eq } from "drizzle-orm";
+import { z } from "zod";
 
 // UTILS
 import { createTRPCRouter, userProcedure } from "~/server/api/trpc";
 import { taskCompletions } from "~/server/db/schema";
-import { Code } from "lucide-react";
 
 export const completionRouter = createTRPCRouter({
   create: userProcedure

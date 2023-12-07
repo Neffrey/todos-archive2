@@ -2,7 +2,6 @@
 
 // LIBS
 import Link from "next/link";
-import { signIn } from "next-auth/react";
 
 // COMPONENTS
 import ProtectedContent from "~/components/protectedContent";

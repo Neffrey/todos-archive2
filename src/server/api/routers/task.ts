@@ -1,9 +1,10 @@
 import "server-only"; // Make sure you can't import this on client
 
+// LIBS
 import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 
-import { TRPCError } from "@trpc/server";
+// UTILS
 import {
   createTRPCRouter,
   protectedUserProcedure,
@@ -44,12 +45,6 @@ export const taskRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      // const dbTask = await ctx.db.query.tasks.findFirst({
-      //   where: eq(tasks.id, input.id),
-      // });
-      // if (dbTask?.userId !== ctx.session.user.id) {
-      //   throw new TRPCError({ code: "UNAUTHORIZED" });
-      // }
       return await ctx.db
         .update(tasks)
         .set({
@@ -58,7 +53,6 @@ export const taskRouter = createTRPCRouter({
           timesToComplete: input.timesToComplete,
           timeframe: input.timeframe,
         })
-        // .where(eq(tasks.id, input.id));
         .where(
           and(eq(tasks.id, input.id), eq(tasks.userId, ctx.session.user.id)),
         );
