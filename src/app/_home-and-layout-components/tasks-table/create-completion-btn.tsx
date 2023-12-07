@@ -30,7 +30,7 @@ const CreateCompletionBtn = ({ className, task }: Props) => {
     createCompletion.mutate({
       taskId: task.id,
       timeframeCompletion:
-        task?.taskCompletions?.length &&
+        task.taskCompletions &&
         task.taskCompletions.length < task.timesToComplete - 1
           ? false
           : true,
