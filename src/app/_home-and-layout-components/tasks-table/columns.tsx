@@ -68,9 +68,9 @@ export const columns: ColumnDef<Task>[] = [
     },
     cell: ({ row }) => {
       return (
-        <div className="flex justify-center">
+        <DataCell data={row.original} className="min-w-max justify-center">
           {`${row.original.comments?.length.toString()} comments`}
-        </div>
+        </DataCell>
       );
     },
   },
