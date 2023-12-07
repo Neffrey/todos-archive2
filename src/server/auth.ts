@@ -11,7 +11,12 @@ import GoogleProvider from "next-auth/providers/google";
 // UTILS
 import { env } from "~/env.mjs";
 import { db } from "~/server/db";
-import { type UserRole, mysqlTable, users } from "~/server/db/schema";
+import {
+  type UserRole,
+  mysqlTable,
+  users,
+  type ColorTheme,
+} from "~/server/db/schema";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -25,6 +30,8 @@ declare module "next-auth" {
     user: {
       id: string;
       role?: UserRole | null;
+      colorTheme?: ColorTheme | null;
+      showCompletedTasksDefault?: boolean | null;
     } & DefaultSession["user"];
   }
 
@@ -33,6 +40,8 @@ declare module "next-auth" {
     email?: string | null;
     image?: string | null;
     role?: UserRole | null;
+    colorTheme?: ColorTheme | null;
+    showCompletedTasksDefault?: boolean | null;
   }
 }
 
@@ -43,18 +52,44 @@ declare module "next-auth" {
  */
 export const authOptions: NextAuthOptions = {
   callbacks: {
-    session: async ({ session, user }) => ({
-      ...session,
-      user: {
-        ...session.user,
-        id: user.id,
-        role: session.user.role
-          ? session.user.role
-          : await db.query.users
-              .findFirst({ where: eq(users.id, user.id) })
-              .then((user) => user?.role),
-      },
-    }),
+    session: async ({ session, user }) => {
+      let dbUser;
+
+      if (!user.colorTheme || !user.role || !user.showCompletedTasksDefault) {
+        dbUser = await db.query.users.findFirst({
+          where: eq(users.id, user.id),
+        });
+      }
+
+      return {
+        ...session,
+        user: {
+          ...session.user,
+          id: user.id,
+          // role: dbUser.role,
+          // colorTheme: dbUser.colorTheme,
+          // showCompletedTasksDefault: dbUser.showCompletedTasksDefault,
+
+          role: session.user.role
+            ? session.user.role
+            : dbUser?.role
+            ? dbUser.role
+            : null,
+
+          colorTheme: session.user.colorTheme
+            ? session.user.colorTheme
+            : dbUser?.colorTheme
+            ? dbUser.colorTheme
+            : null,
+
+          showCompletedTasksDefault: session.user.showCompletedTasksDefault
+            ? session.user.showCompletedTasksDefault
+            : dbUser?.showCompletedTasksDefault
+            ? dbUser.showCompletedTasksDefault
+            : null,
+        },
+      };
+    },
   },
 
   adapter: DrizzleAdapter(db, mysqlTable),

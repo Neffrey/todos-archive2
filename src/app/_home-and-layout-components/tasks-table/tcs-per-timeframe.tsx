@@ -8,13 +8,15 @@ import { FaCheck } from "react-icons/fa";
 // COMPONENTS
 
 // TYPES
-import { type Task } from "~/components/tables/tasks/columns";
+import { type Task } from "~/server/db/schema";
 type Props = {
   task: Task;
 };
 
 const TCsPerTimeframe = ({ task }: Props) => {
-  const currentCompletions = task.taskCompletions.slice(-task.timesToComplete);
+  const currentCompletions = task?.taskCompletions
+    ? task.taskCompletions.slice(-task.timesToComplete)
+    : [];
 
   return (
     <div className="flex items-center justify-center">

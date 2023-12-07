@@ -5,8 +5,11 @@ import { isWithin } from "~/lib/time-compare";
 
 // COMPONENTS
 import { api } from "~/trpc/server";
-import { columns, type Task } from "./columns";
+import { columns } from "./columns";
 import { DataTable } from "./data-table";
+
+// TYPES
+import { type Task } from "~/server/db/schema";
 
 // HELPERS
 const getData = async (): Promise<Task[]> => {
@@ -21,28 +24,29 @@ const TasksTableController = async () => {
   const currentData = data.map((task) => {
     return {
       id: task.id,
+      userId: task.userId,
       title: task.title,
       timesToComplete: task.timesToComplete,
       timeframe: task.timeframe,
       createdAt: task.createdAt,
       updatedAt: task.updatedAt,
       comments: task.comments,
-      taskCompletions: task.taskCompletions
-        .slice(-task.timesToComplete)
-        .filter((completion) =>
-          isWithin({
-            timeframe: task.timeframe,
-            oldDate: completion.createdAt,
-            newDate: now,
-          }),
-        ),
+      taskCompletions: task?.taskCompletions
+        ? task.taskCompletions
+            .slice(-task.timesToComplete)
+            .filter((completion) =>
+              isWithin({
+                timeframe: task.timeframe,
+                oldDate: completion.createdAt,
+                newDate: now,
+              }),
+            )
+        : [],
     };
   });
 
   return (
-    <div className="flex w-full flex-col items-center p-20">
-      <h2 className="pb-4 text-3xl uppercase tracking-wider">Task Table</h2>
-
+    <div className="flex w-3/4 flex-col items-center justify-end">
       <DataTable columns={columns} data={currentData} />
     </div>
   );

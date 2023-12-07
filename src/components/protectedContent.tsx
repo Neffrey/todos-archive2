@@ -5,7 +5,7 @@ import { type ReactNode } from "react";
 import { useSession } from "next-auth/react";
 
 // TYPES
-import { type UserRole } from "~/server/auth";
+import { type UserRole } from "~/server/db/schema";
 
 type ProtectedContentProps = {
   children: ReactNode;

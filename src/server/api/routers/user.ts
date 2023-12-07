@@ -25,6 +25,7 @@ export const userRouter = createTRPCRouter({
           .min(3, { message: "Name must be at least 3 characters long" })
           .optional(),
         image: z.string().url().optional(),
+        showCompleted: z.boolean().optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -33,6 +34,7 @@ export const userRouter = createTRPCRouter({
         .set({
           name: input.name ? input.name : undefined,
           image: input.image ? input.image : undefined,
+          showCompletedTasksDefault: input.showCompleted,
         })
         .where(eq(users.id, ctx.session.user.id));
     }),

@@ -5,20 +5,23 @@ import "~/app/globals.css";
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { type ReactNode } from "react";
+import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
+import { extractRouterConfig } from "uploadthing/server";
 
 // UTILS
 import { TRPCReactProvider } from "~/trpc/react";
+import { ourFileRouter } from "~/app/api/uploadthing/core";
 
 // COMPONENTS
-import Footer from "~/components/footer";
-import Header from "~/components/header";
+import Footer from "~/app/_home-and-layout-components/footer";
+import Header from "~/app/_home-and-layout-components/header";
 import UseOnRender from "~/components/hooks/use-on-render";
-import HtmlWrapper from "~/components/html-wrapper";
+import HtmlWrapper from "~/app/_home-and-layout-components/html-wrapper";
 import LightDarkProvider from "~/components/providers/light-dark-provider";
 import SessionProvider from "~/components/providers/session-provider";
-import ThemeDrawer from "~/components/theme-drawer";
 import LoadingSpinner from "~/components/ui/loading-spinner";
 import { Toaster } from "~/components/ui/toaster";
+import DefaultColorTheme from "~/app/account/_components/default-color-theme";
 
 export const metadata: Metadata = {
   title: "Neffrey Starter",
@@ -29,7 +32,7 @@ const RootLayout = ({ children }: { children: ReactNode }) => {
   return (
     <SessionProvider>
       <HtmlWrapper>
-        <body>
+        <body className="custom-scrollbar">
           <TRPCReactProvider headers={headers()}>
             <LightDarkProvider>
               <UseOnRender
@@ -40,9 +43,14 @@ const RootLayout = ({ children }: { children: ReactNode }) => {
                   </div>
                 }
               >
+                <NextSSRPlugin
+                  routerConfig={extractRouterConfig(ourFileRouter)}
+                />
+                <DefaultColorTheme />
                 <Header />
-                <ThemeDrawer />
-                {children}
+                <main className="flex min-h-screen w-full flex-col">
+                  {children}
+                </main>
                 <Toaster />
                 <Footer />
               </UseOnRender>

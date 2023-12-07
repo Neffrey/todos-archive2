@@ -5,17 +5,19 @@ import { useRouter } from "next/navigation";
 
 // UTILS
 import { api } from "~/trpc/react";
+import { cn } from "~/lib/utils";
 
 // COMPONENTS
 import { Button } from "~/components/ui/button";
 
 // TYPES
-import { type Task } from "~/components/tables/tasks/columns";
+import { type Task } from "~/server/db/schema";
 type Props = {
   task: Task;
+  className?: string;
 };
 
-const CreateCompletionBtn = ({ task }: Props) => {
+const CreateCompletionBtn = ({ className, task }: Props) => {
   const router = useRouter();
 
   const createCompletion = api.completion.create.useMutation({
@@ -28,13 +30,18 @@ const CreateCompletionBtn = ({ task }: Props) => {
     createCompletion.mutate({
       taskId: task.id,
       timeframeCompletion:
-        task.taskCompletions.length < task.timesToComplete - 1 ? false : true,
+        task?.taskCompletions?.length &&
+        task.taskCompletions.length < task.timesToComplete - 1
+          ? false
+          : true,
     });
   };
 
   return (
-    <div className="flex items-center justify-center">
-      <Button onClick={handleCreateCompletion}>Mark Complete</Button>
+    <div className={cn("flex items-center justify-center", className)}>
+      <Button className="min-w-max" onClick={handleCreateCompletion}>
+        Mark Complete
+      </Button>
     </div>
   );
 };

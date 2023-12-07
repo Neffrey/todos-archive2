@@ -2,14 +2,15 @@
 
 // LIBS
 import Link from "next/link";
+import { signIn } from "next-auth/react";
 
 // COMPONENTS
 import ProtectedContent from "~/components/protectedContent";
 import { Button } from "~/components/ui/button";
+import LoginBtn from "./login-btn";
 
 // TYPES
 import { type UserRole } from "~/server/db/schema";
-import ChangeThemeBtn from "./change-theme-btn";
 
 type NavItems = {
   title: string;
@@ -19,7 +20,7 @@ type NavItems = {
 
 // Nav items
 const navItems: NavItems = [
-  { title: "Tasks", href: "/tasks" },
+  { title: "Tasks", href: "/" },
   { title: "Users", href: "/users", authedRoles: ["ADMIN"] },
 ];
 
@@ -41,10 +42,14 @@ const NavMenu = () => {
           </ProtectedContent>
         );
       })}
-      <Link href="account" tabIndex={-1}>
-        <Button variant={"ghost"}>My Account</Button>
-      </Link>
-      <ChangeThemeBtn />
+      <ProtectedContent
+        authedRoles={["ADMIN", "USER", "RESTRICTED"]}
+        fallback={<LoginBtn />}
+      >
+        <Link href="account" tabIndex={-1}>
+          <Button variant={"ghost"}>My Account</Button>
+        </Link>
+      </ProtectedContent>
     </div>
   );
 };

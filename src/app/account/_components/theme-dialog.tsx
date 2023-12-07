@@ -2,10 +2,13 @@
 
 // LIBRARIES
 import "react-modern-drawer/dist/index.css";
-import React, { Suspense } from "react";
+import { useEffect } from "react";
 import Drawer from "react-modern-drawer";
 import { FaStar, FaMoon, FaSun, FaTimes } from "react-icons/fa";
 import { useTheme } from "next-themes";
+
+// UTILS
+import { type ColorTheme } from "~/server/db/schema";
 
 // COMPONENTS
 import useThemeStore from "~/components/stores/theme-store";
@@ -13,7 +16,7 @@ import { Switch } from "~/components/ui/switch";
 import UseOnRender from "~/components/hooks/use-on-render";
 
 // FC
-const ThemeDrawer = () => {
+const ThemeDialog = () => {
   // COlor Theme States
   const currentTheme = useThemeStore((state) => state.currentTheme);
   const drawerIsOpen = useThemeStore((state) => state.drawerIsOpen);
@@ -25,10 +28,10 @@ const ThemeDrawer = () => {
   const { theme: ldTheme, setTheme: setLdTheme } = useTheme();
 
   // Effect to trigger Theme Change in localStorage
-  React.useEffect(() => {
+  useEffect(() => {
     const localTheme = window.localStorage.getItem("theme");
-    if (localTheme !== null && themeList.includes(localTheme)) {
-      setCurrentTheme(localTheme);
+    if (localTheme !== null && themeList.includes(localTheme as ColorTheme)) {
+      setCurrentTheme(localTheme as ColorTheme);
     } else window.localStorage.setItem("theme", currentTheme);
   }, [setCurrentTheme, currentTheme, themeList]);
 
@@ -152,4 +155,4 @@ const ThemeDrawer = () => {
     </Drawer>
   );
 };
-export default ThemeDrawer;
+export default ThemeDialog;

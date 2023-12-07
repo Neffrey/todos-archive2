@@ -3,27 +3,20 @@
 // LIBRARIES
 import { create } from "zustand";
 
+import { COLOR_THEMES, type ColorTheme } from "~/server/db/schema";
+
 export interface ThemeStoreType {
   drawerIsOpen: boolean;
-  currentTheme: string;
-  themeList: string[];
-  setCurrentTheme: (current: string) => void;
+  currentTheme: ColorTheme;
+  themeList: ColorTheme[];
+  setCurrentTheme: (current: ColorTheme) => void;
   toggleDrawer: () => void;
 }
 
 const useThemeStore = create<ThemeStoreType>((set, get) => ({
   drawerIsOpen: false,
   currentTheme: "galaxy",
-  themeList: [
-    "bland",
-    "bumblebee",
-    "coffee",
-    "cupcake",
-    "forest",
-    "galaxy",
-    "lavender",
-    "valentine",
-  ],
+  themeList: [...COLOR_THEMES],
   setCurrentTheme: (current) => {
     set(() => ({
       currentTheme: current,

@@ -2,7 +2,7 @@
 import Link from "next/link";
 
 // COMPONENTS
-import NavMenu from "~/components/nav-menu";
+import NavMenu from "~/app/_home-and-layout-components/nav-menu";
 import StickyScrollBar from "~/components/sticky-scroll-bar";
 import NeffreyLogo from "~/components/svgs/NeffreyLogo";
 

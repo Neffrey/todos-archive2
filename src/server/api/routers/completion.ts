@@ -1,12 +1,13 @@
 // LIBS
+import { and, desc, eq } from "drizzle-orm";
 import "server-only"; // Make sure you can't import this on client
 import { z } from "zod";
-import { eq } from "drizzle-orm";
+import { TRPCError } from "@trpc/server";
 
 // UTILS
-import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, userProcedure } from "~/server/api/trpc";
 import { taskCompletions } from "~/server/db/schema";
+import { Code } from "lucide-react";
 
 export const completionRouter = createTRPCRouter({
   create: userProcedure
@@ -19,73 +20,55 @@ export const completionRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       return await ctx.db.insert(taskCompletions).values({
         taskId: input.taskId,
-        user: ctx.session.user.id,
+        userId: ctx.session.user.id,
         timeframeCompletion: input.timeframeCompletion,
+      });
+    }),
+  createWithReturn: userProcedure
+    .input(
+      z.object({
+        taskId: z.number().min(1),
+        timeframeCompletion: z.boolean().default(false).optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      await ctx.db.insert(taskCompletions).values({
+        taskId: input.taskId,
+        userId: ctx.session.user.id,
+        timeframeCompletion: input.timeframeCompletion,
+      });
+      return await ctx.db.query.taskCompletions.findMany({
+        where: eq(taskCompletions.taskId, input.taskId),
       });
     }),
   delete: userProcedure
     .input(
       z.object({
-        id: z.number().min(1),
+        taskId: z.number().min(1),
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const tc = await ctx.db.query.taskCompletions.findFirst({
-        where: eq(taskCompletions.id, input.id),
-      });
-      if (tc?.user !== ctx.session.user.id) {
-        throw new TRPCError({ code: "UNAUTHORIZED" });
-      }
+      const getLatestCompletion = await ctx.db
+        .select({ id: taskCompletions.id })
+        .from(taskCompletions)
+        .where(eq(taskCompletions.taskId, input.taskId))
+        .orderBy(desc(taskCompletions.createdAt))
+        .limit(1);
+
+      const latestCompletion = getLatestCompletion.pop();
+
+      if (!latestCompletion)
+        throw new TRPCError({
+          message: "No completion found",
+          code: "NOT_FOUND",
+        });
       return await ctx.db
         .delete(taskCompletions)
-        .where(eq(taskCompletions.id, input.id));
+        .where(
+          and(
+            eq(taskCompletions.id, latestCompletion.id),
+            eq(taskCompletions.userId, ctx.session.user.id),
+          ),
+        );
     }),
-  // getAll: userProcedure.query(async ({ ctx }) => {
-  //   return await ctx.db.query.tasks.findMany({
-  //     where: eq(tasks.user, ctx.session.user.id),
-  //     with: { comments: true, taskCompletions: true },
-  //   });
-  // }),
-  // create: protectedUserProcedure
-  //   .input(
-  //     z.object({
-  //       title: z.string().min(1),
-  //       timesToComplete: z.number().int().min(1),
-  //       timeframe: z.enum(["DAY", "WEEK", "FORTNIGHT", "MONTH"]),
-  //     }),
-  //   )
-  //   .mutation(async ({ ctx, input }) => {
-  //     await ctx.db.insert(tasks).values({
-  //       title: input.title,
-  //       user: ctx.session.user.id,
-  //       timesToComplete: input.timesToComplete,
-  //       timeframe: input.timeframe,
-  //     });
-  //   }),
-  // edit: userProcedure
-  //   .input(
-  //     z.object({
-  //       id: z.number().int().min(1),
-  //       title: z.string().min(1),
-  //       timesToComplete: z.number().int().min(1),
-  //       timeframe: z.enum(["DAY", "WEEK", "FORTNIGHT", "MONTH"]),
-  //     }),
-  //   )
-  //   .mutation(async ({ ctx, input }) => {
-  //     const dbTask = await ctx.db.query.tasks.findFirst({
-  //       where: eq(tasks.id, input.id),
-  //     });
-  //     if (dbTask?.user !== ctx.session.user.id) {
-  //       throw new TRPCError({ code: "UNAUTHORIZED" });
-  //     }
-  //     return await ctx.db
-  //       .update(tasks)
-  //       .set({
-  //         title: input.title,
-  //         user: ctx.session.user.id,
-  //         timesToComplete: input.timesToComplete,
-  //         timeframe: input.timeframe,
-  //       })
-  //       .where(eq(tasks.id, input.id));
-  //   }),
 });
