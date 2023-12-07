@@ -79,7 +79,6 @@ const EditTaskForm = ({ form }: EditTaskFormProps) => {
   const editTask = api.task.edit.useMutation({
     onSuccess: () => {
       router.refresh();
-      form.reset();
     },
   });
 
@@ -91,7 +90,7 @@ const EditTaskForm = ({ form }: EditTaskFormProps) => {
       timeframe: values.timeframe,
     };
     editTask.mutate(validatedValues);
-    setOpen(false);
+    // setOpen(false);
     toast({
       action: (
         <div className="flex h-full w-full items-center justify-between">
