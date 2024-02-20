@@ -60,6 +60,7 @@ export const users = mysqlTable("user", {
   }).default(sql`CURRENT_TIMESTAMP(3)`),
   image: varchar("image", { length: 255 }),
   role: mysqlEnum("role", USER_ROLES).default(USER_ROLES[1]),
+  ldTheme: mysqlEnum("colorTheme", COLOR_THEMES).default(COLOR_THEMES[5]),
   colorTheme: mysqlEnum("colorTheme", COLOR_THEMES).default(COLOR_THEMES[5]),
   showCompletedTasksDefault: boolean("showCompletedTasks").default(false),
 });
@@ -162,7 +163,7 @@ export const profilePictureRelations = relations(
 
 export type Task = Prettify<
   InferSqlTable<typeof tasks> & {
-    comments?: Comment[];
+    // comments?: Partial<Comment>[];
     taskCompletions?: TaskCompletion[];
   }
 >;
@@ -198,8 +199,8 @@ export const tasksRelations = relations(tasks, ({ one, many }) => ({
 
 export type TaskCompletion = Prettify<
   InferSqlTable<typeof taskCompletions> & {
-    task?: Task[];
-    user?: DbUser[];
+    task?: Partial<Task>[];
+    user?: Partial<DbUser>[];
   }
 >;
 export const taskCompletions = mysqlTable(
@@ -235,14 +236,18 @@ export const tcRelations = relations(taskCompletions, ({ one }) => ({
   }),
 }));
 
-export type Comment = InferSqlTable<typeof comments>;
+export type Comment = Prettify<
+  InferSqlTable<typeof comments> & {
+    task?: Partial<Task>[];
+    user?: Partial<DbUser>[];
+  }
+>;
 export const comments = mysqlTable(
   "comment",
   {
     id: bigint("id", { mode: "number" }).primaryKey().autoincrement(),
     taskId: bigint("taskId", { mode: "number" }).notNull(),
     userId: varchar("user", { length: 255 }).notNull(),
-    userName: varchar("userName", { length: 255 }),
     content: text("content").notNull(),
     createdAt: timestamp("created_at")
       .default(sql`CURRENT_TIMESTAMP`)
@@ -260,11 +265,7 @@ export const comments = mysqlTable(
 export const commentsRelations = relations(comments, ({ one }) => ({
   task: one(tasks, { fields: [comments.taskId], references: [tasks.id] }),
   user: one(users, {
-    fields: [comments.userId, comments.userName],
-    references: [users.id, users.name],
+    fields: [comments.userId],
+    references: [users.id],
   }),
-  // userName: one(users, {
-  //   fields: [comments.userName],
-  //   references: [users.name],
-  // }),
 }));

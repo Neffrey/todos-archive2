@@ -25,7 +25,7 @@ export const LoginBtn = () => {
 };
 
 // COMPONENT
-const CreateTaskModal = () => {
+const CreateTaskDialog = () => {
   const [open, setOpen] = useState(false);
 
   return (
@@ -45,4 +45,4 @@ const CreateTaskModal = () => {
   );
 };
 
-export default CreateTaskModal;
+export default CreateTaskDialog;

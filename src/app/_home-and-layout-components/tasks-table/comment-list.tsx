@@ -75,9 +75,9 @@ const CommentList = ({ className }: { className?: string }) => {
               </div>
             )}
             <div className="flex flex-col items-center">
-              <div className="flex text-center text-sm">
-                {comment?.userName ? comment.userName : "Anonymous User"}
-              </div>
+              {/* <div className="flex text-center text-sm">
+                {comment. ? comment.userName : "Anonymous User"}
+              </div> */}
               <div className="flex text-center text-xs">
                 {relativeTime.from(comment.updatedAt)}
               </div>

@@ -1,5 +1,6 @@
 import "server-only"; // Make sure you can't import this on client
 
+import { sanitize } from "string-sanitizer";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 
@@ -9,7 +10,7 @@ import {
   protectedUserProcedure,
   userProcedure,
 } from "~/server/api/trpc";
-import { users } from "~/server/db/schema";
+import { users, type ColorTheme, COLOR_THEMES } from "~/server/db/schema";
 
 export const userRouter = createTRPCRouter({
   get: userProcedure.query(async ({ ctx }) => {
@@ -25,16 +26,19 @@ export const userRouter = createTRPCRouter({
           .min(3, { message: "Name must be at least 3 characters long" })
           .optional(),
         image: z.string().url().optional(),
-        showCompleted: z.boolean().optional(),
+        showCompletedSetting: z.boolean().optional(),
+        ldTheme: z.string().optional(),
+        colorTheme: z.ZodEnum.create(COLOR_THEMES).optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
       return await ctx.db
         .update(users)
         .set({
-          name: input.name ? input.name : undefined,
+          name: input.name ? sanitize.keepSpace(input.name) : undefined,
           image: input.image ? input.image : undefined,
-          showCompletedTasksDefault: input.showCompleted,
+          showCompletedTasksDefault: input.showCompletedSetting,
+          colorTheme: input.colorTheme ? input.colorTheme : undefined,
         })
         .where(eq(users.id, ctx.session.user.id));
     }),
@@ -54,7 +58,7 @@ export const userRouter = createTRPCRouter({
       return await ctx.db
         .update(users)
         .set({
-          name: input.name ? input.name : undefined,
+          name: input.name ? sanitize.keepSpace(input.name) : undefined,
           image: input.image ? input.image : undefined,
           role: input.role ? input.role : undefined,
         })

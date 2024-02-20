@@ -3,18 +3,20 @@
 // LIBRARIES
 import { create } from "zustand";
 
+// UTILS
 import { COLOR_THEMES, type ColorTheme } from "~/server/db/schema";
 
 export interface ThemeStoreType {
-  drawerIsOpen: boolean;
+  isOpen: boolean;
   currentTheme: ColorTheme;
   themeList: ColorTheme[];
   setCurrentTheme: (current: ColorTheme) => void;
+  setIsOpen: (isOpen: boolean) => void;
   toggleDrawer: () => void;
 }
 
 const useThemeStore = create<ThemeStoreType>((set, get) => ({
-  drawerIsOpen: false,
+  isOpen: false,
   currentTheme: "galaxy",
   themeList: [...COLOR_THEMES],
   setCurrentTheme: (current) => {
@@ -23,9 +25,14 @@ const useThemeStore = create<ThemeStoreType>((set, get) => ({
     }));
     window.localStorage.setItem("theme", current);
   },
+  setIsOpen: (isOpen) => {
+    set(() => ({
+      isOpen,
+    }));
+  },
   toggleDrawer: () => {
     set(() => ({
-      drawerIsOpen: !get().drawerIsOpen,
+      isOpen: !get().isOpen,
     }));
   },
 }));

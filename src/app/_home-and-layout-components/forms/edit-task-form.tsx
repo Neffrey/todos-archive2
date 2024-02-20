@@ -1,16 +1,17 @@
 // LIBS
 import { useRouter } from "next/navigation";
+import { type FieldValues } from "react-hook-form";
 import { z } from "zod";
 
 // UITLS
 import { timesToCompleteItems } from "~/app/_home-and-layout-components/forms/task-form-consts";
+import useEditTaskFormStore from "~/components/stores/edit-task-form-store";
 import { TASK_TIMEFRAMES } from "~/server/db/schema";
 import { api } from "~/trpc/react";
-import useEditTaskFormStore from "../../../components/stores/edit-task-form-store";
 
 // COMPONENTS
+import { useMemo } from "react";
 import { type UseFormReturn } from "react-hook-form";
-import { FaCheck } from "react-icons/fa";
 import { Button } from "~/components/ui/button";
 import {
   Form,
@@ -28,8 +29,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
+import { DivedToast } from "~/components/ui/toast";
 import { useToast } from "~/components/ui/use-toast";
-import { useMemo } from "react";
 
 // CONSTANTS
 export const formSchema = z.object({
@@ -39,16 +40,14 @@ export const formSchema = z.object({
   timesToComplete: z.string().min(1),
   timeframe: z.enum(TASK_TIMEFRAMES),
 });
+
 type EditTaskFormProps = {
   form: UseFormReturn<
     {
       title: string;
       timesToComplete: string;
       timeframe: "DAY" | "WEEK" | "FORTNIGHT" | "MONTH";
-    },
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    any,
-    undefined
+    } & FieldValues
   >;
 };
 
@@ -59,7 +58,7 @@ const EditTaskForm = ({ form }: EditTaskFormProps) => {
 
   // FORM STATES
   const setFormValue = form.setValue;
-  const setOpen = useEditTaskFormStore((state) => state.setOpen);
+  // const setOpen = useEditTaskFormStore((state) => state.setOpen);
   const id = useEditTaskFormStore((state) => state.id);
   const title = useEditTaskFormStore((state) => state.title);
   const timeframe = useEditTaskFormStore((state) => state.timeframe);
@@ -93,10 +92,9 @@ const EditTaskForm = ({ form }: EditTaskFormProps) => {
     // setOpen(false);
     toast({
       action: (
-        <div className="flex h-full w-full items-center justify-between">
-          <FaCheck className="text-2xl" />
-          {`Task "${validatedValues.title}" edited successfully!`}
-        </div>
+        <DivedToast type="success">
+          {`Task "${validatedValues.title}" editted successfully!`}
+        </DivedToast>
       ),
     });
   };

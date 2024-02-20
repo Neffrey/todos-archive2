@@ -19,7 +19,7 @@ import UseOnRender from "~/components/hooks/use-on-render";
 const ThemeDialog = () => {
   // COlor Theme States
   const currentTheme = useThemeStore((state) => state.currentTheme);
-  const drawerIsOpen = useThemeStore((state) => state.drawerIsOpen);
+  const isOpen = useThemeStore((state) => state.isOpen);
   const themeList = useThemeStore((state) => state.themeList);
   const setCurrentTheme = useThemeStore((state) => state.setCurrentTheme);
   const toggleDrawer = useThemeStore((state) => state.toggleDrawer);
@@ -40,7 +40,7 @@ const ThemeDialog = () => {
       customIdSuffix="theme-drawer"
       className="w-full min-w-full transition md:min-w-[75vw] lg:min-w-[60vw]"
       direction="right"
-      open={drawerIsOpen}
+      open={isOpen}
       onClose={toggleDrawer}
     >
       <div

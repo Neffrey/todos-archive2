@@ -17,7 +17,7 @@ const Header = () => {
       >
         <div
           // Logo Container
-          className="h-12 w-12 cursor-pointer fill-secondary-foreground"
+          className="h-12 w-12 cursor-pointer fill-primary-foreground"
         >
           <NeffreyLogo />
         </div>

@@ -5,11 +5,12 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 // UITLS
-import { api } from "~/trpc/react";
-import { TASK_TIMEFRAMES } from "~/server/db/schema";
 import { timesToCompleteItems } from "~/app/_home-and-layout-components/forms/task-form-consts";
+import { TASK_TIMEFRAMES } from "~/server/db/schema";
+import { api } from "~/trpc/react";
 
 // COMPONENTS
+import { Button } from "~/components/ui/button";
 import {
   Form,
   FormControl,
@@ -26,9 +27,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
+import { DivedToast } from "~/components/ui/toast";
 import { useToast } from "~/components/ui/use-toast";
-import { FaCheck } from "react-icons/fa";
-import { Button } from "~/components/ui/button";
 
 // CONSTANTS
 const formSchema = z.object({
@@ -73,10 +73,9 @@ const CreateTaskForm = ({ setOpen }: CreateTaskFormProps) => {
     setOpen(false);
     toast({
       action: (
-        <div className="flex h-full w-full items-center justify-between">
-          <FaCheck className="text-2xl" />
+        <DivedToast type="success">
           {`Task "${validatedValues.title}" created successfully!`}
-        </div>
+        </DivedToast>
       ),
     });
   };

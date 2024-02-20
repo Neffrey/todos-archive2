@@ -8,12 +8,11 @@ import { api } from "~/trpc/server";
 import { columns } from "./columns";
 import { DataTable } from "./data-table";
 
-// TYPES
 import { type Task } from "~/server/db/schema";
-
 // HELPERS
-const getData = async (): Promise<Task[]> => {
+const getData = async () => {
   return await api.task.getAll.query();
+  // const newdata = await api.task.getAll.query();
 };
 
 // COMP
@@ -30,7 +29,7 @@ const TasksTableController = async () => {
       timeframe: task.timeframe,
       createdAt: task.createdAt,
       updatedAt: task.updatedAt,
-      comments: task.comments,
+      // comments: task.comments,
       taskCompletions: task?.taskCompletions
         ? task.taskCompletions
             .slice(-task.timesToComplete)
@@ -42,7 +41,7 @@ const TasksTableController = async () => {
               }),
             )
         : [],
-    };
+    } satisfies Task;
   });
 
   return (

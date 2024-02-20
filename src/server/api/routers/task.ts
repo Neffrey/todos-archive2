@@ -10,14 +10,19 @@ import {
   protectedUserProcedure,
   userProcedure,
 } from "~/server/api/trpc";
-import { TASK_TIMEFRAMES, tasks } from "~/server/db/schema";
+import { TASK_TIMEFRAMES, tasks, type Task } from "~/server/db/schema";
 
 export const taskRouter = createTRPCRouter({
   getAll: userProcedure.query(async ({ ctx }) => {
-    return await ctx.db.query.tasks.findMany({
+    // return await ctx.db.query.tasks.findMany({
+    //   where: eq(tasks.userId, ctx.session.user.id),
+    //   with: { comments: { with: { user: true } }, taskCompletions: true },
+    // });
+    const allTasks = await ctx.db.query.tasks.findMany({
       where: eq(tasks.userId, ctx.session.user.id),
-      with: { comments: true, taskCompletions: true },
+      with: { comments: { with: { user: true } }, taskCompletions: true },
     });
+    return allTasks;
   }),
   create: protectedUserProcedure
     .input(

@@ -36,7 +36,9 @@ const NavMenu = () => {
             authedRoles={item?.authedRoles}
           >
             <Link href={item.href} tabIndex={-1}>
-              <Button variant={"ghost"}>{item.title}</Button>
+              <Button variant={"ghost"} className="text-primary-foreground">
+                {item.title}
+              </Button>
             </Link>
           </ProtectedContent>
         );
@@ -46,7 +48,9 @@ const NavMenu = () => {
         fallback={<LoginBtn />}
       >
         <Link href="account" tabIndex={-1}>
-          <Button variant={"ghost"}>My Account</Button>
+          <Button variant={"ghost"} className="text-primary-foreground">
+            My Account
+          </Button>
         </Link>
       </ProtectedContent>
     </div>

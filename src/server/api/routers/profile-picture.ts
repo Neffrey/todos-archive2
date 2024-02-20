@@ -8,6 +8,11 @@ import { createTRPCRouter, userProcedure } from "~/server/api/trpc";
 import { profilePictures } from "~/server/db/schema";
 
 export const profilePicturesRouter = createTRPCRouter({
+  getProfilePictures: userProcedure.query(async ({ ctx }) => {
+    return await ctx.db.query.profilePictures.findMany({
+      where: eq(profilePictures.userId, ctx.session.user.id),
+    });
+  }),
   create: userProcedure
     .input(
       z.object({
