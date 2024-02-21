@@ -163,7 +163,7 @@ export const profilePictureRelations = relations(
 
 export type Task = Prettify<
   InferSqlTable<typeof tasks> & {
-    // comments?: Partial<Comment>[];
+    comments?: Partial<Comment>[];
     taskCompletions?: TaskCompletion[];
   }
 >;
@@ -239,7 +239,7 @@ export const tcRelations = relations(taskCompletions, ({ one }) => ({
 export type Comment = Prettify<
   InferSqlTable<typeof comments> & {
     task?: Partial<Task>[];
-    user?: Partial<DbUser>[];
+    // user?: Partial<DbUser>[];
   }
 >;
 export const comments = mysqlTable(
