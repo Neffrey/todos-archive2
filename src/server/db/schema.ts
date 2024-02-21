@@ -39,7 +39,7 @@ export const TASK_TIMEFRAMES = ["DAY", "WEEK", "FORTNIGHT", "MONTH"] as const;
 export type TaskTimeframe = (typeof tasks.timeframe.enumValues)[number];
 
 // INSTANTIATE SCHEMA
-export const mysqlTable = mysqlTableCreator((name) => `todos_14_${name}`);
+export const TasksTable = mysqlTableCreator((name) => `todos_14_${name}`);
 
 // User & Auth tables
 export type DbUser = Prettify<
@@ -50,7 +50,7 @@ export type DbUser = Prettify<
     profilePictures?: ProfilePicture[];
   }
 >;
-export const users = mysqlTable("user", {
+export const users = TasksTable("user", {
   id: varchar("id", { length: 255 }).notNull().primaryKey(),
   name: varchar("name", { length: 255 }),
   email: varchar("email", { length: 255 }).notNull(),
@@ -73,7 +73,7 @@ export const usersRelations = relations(users, ({ many }) => ({
 }));
 
 export type Account = Prettify<InferSqlTable<typeof accounts>>;
-export const accounts = mysqlTable(
+export const accounts = TasksTable(
   "account",
   {
     userId: varchar("userId", { length: 255 }).notNull(),
@@ -100,7 +100,7 @@ export const accountsRelations = relations(accounts, ({ one }) => ({
   user: one(users, { fields: [accounts.userId], references: [users.id] }),
 }));
 
-export const sessions = mysqlTable(
+export const sessions = TasksTable(
   "session",
   {
     sessionToken: varchar("sessionToken", { length: 255 })
@@ -118,7 +118,7 @@ export const sessionsRelations = relations(sessions, ({ one }) => ({
   userId: one(users, { fields: [sessions.userId], references: [users.id] }),
 }));
 
-export const verificationTokens = mysqlTable(
+export const verificationTokens = TasksTable(
   "verificationToken",
   {
     identifier: varchar("identifier", { length: 255 }).notNull(),
@@ -135,7 +135,7 @@ export type ProfilePicture = Prettify<
     user?: DbUser[];
   }
 >;
-export const profilePictures = mysqlTable(
+export const profilePictures = TasksTable(
   "profilePicture",
   {
     id: bigint("id", { mode: "number" }).primaryKey().autoincrement(),
@@ -167,7 +167,7 @@ export type Task = Prettify<
     taskCompletions?: TaskCompletion[];
   }
 >;
-export const tasks = mysqlTable(
+export const tasks = TasksTable(
   "task",
   {
     id: bigint("id", { mode: "number" }).primaryKey().autoincrement(),
@@ -203,7 +203,7 @@ export type TaskCompletion = Prettify<
     user?: Partial<DbUser>[];
   }
 >;
-export const taskCompletions = mysqlTable(
+export const taskCompletions = TasksTable(
   "taskCompletion",
   {
     id: bigint("id", { mode: "number" }).primaryKey().autoincrement(),
@@ -242,7 +242,7 @@ export type Comment = Prettify<
     // user?: Partial<DbUser>[];
   }
 >;
-export const comments = mysqlTable(
+export const comments = TasksTable(
   "comment",
   {
     id: bigint("id", { mode: "number" }).primaryKey().autoincrement(),
