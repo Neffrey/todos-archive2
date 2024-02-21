@@ -13,7 +13,7 @@ import { env } from "~/env.mjs";
 import { db } from "~/server/db";
 import {
   type UserRole,
-  mysqlTable,
+  TasksTable,
   users,
   type ColorTheme,
 } from "~/server/db/schema";
@@ -73,26 +73,26 @@ export const authOptions: NextAuthOptions = {
           role: session.user.role
             ? session.user.role
             : dbUser?.role
-            ? dbUser.role
-            : null,
+              ? dbUser.role
+              : null,
 
           colorTheme: session.user.colorTheme
             ? session.user.colorTheme
             : dbUser?.colorTheme
-            ? dbUser.colorTheme
-            : null,
+              ? dbUser.colorTheme
+              : null,
 
           showCompletedTasksDefault: session.user.showCompletedTasksDefault
             ? session.user.showCompletedTasksDefault
             : dbUser?.showCompletedTasksDefault
-            ? dbUser.showCompletedTasksDefault
-            : null,
+              ? dbUser.showCompletedTasksDefault
+              : null,
         },
       };
     },
   },
 
-  adapter: DrizzleAdapter(db, mysqlTable),
+  adapter: DrizzleAdapter(db, TasksTable),
   providers: [
     GoogleProvider({
       clientId: env.GOOGLE_ID ? env.GOOGLE_ID : "",
