@@ -26,8 +26,8 @@ export interface EditTaskFormStoreType {
   setTaskCompletions: (taskCompletions: TaskCompletion[]) => void;
   timeframe: TaskTimeframe;
   setTimeframe: (timeframe: TaskTimeframe) => void;
-  comments: Comment[];
-  setComments: (comments: Comment[]) => void;
+  comments: Partial<Comment>[];
+  setComments: (comments: Partial<Comment>[]) => void;
 }
 
 const useEditTaskFormStore = create<EditTaskFormStoreType>((set) => ({
