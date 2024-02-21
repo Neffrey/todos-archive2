@@ -32,7 +32,7 @@ export const commentRouter = createTRPCRouter({
         taskId: input.taskId,
         userId: ctx.session.user.id,
         content: input.content,
-        userName: ctx.session.user.name,
+        // userName: ctx.session.user.name,
       });
 
       return await ctx.db.query.comments.findMany({
