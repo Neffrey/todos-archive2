@@ -1,14 +1,14 @@
 "use client";
 
 // LIBS
-import { useSession } from "next-auth/react";
 import RelativeTime from "@yaireo/relative-time";
+import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { FaUser } from "react-icons/fa";
 
 // UTILS
-import { cn } from "~/lib/utils";
 import useEditTaskFormStore from "~/components/stores/edit-task-form-store";
+import { cn } from "~/lib/utils";
 
 // COMP
 const CommentList = ({ className }: { className?: string }) => {
@@ -17,7 +17,8 @@ const CommentList = ({ className }: { className?: string }) => {
 
   const comments = useEditTaskFormStore((state) => state.comments).toReversed();
 
-  const isOwnComment = (userId: string) => {
+  const isOwnComment = (userId: string | undefined) => {
+    if (!session?.user?.id) return false;
     return session?.user.id === userId;
   };
 
@@ -51,7 +52,7 @@ const CommentList = ({ className }: { className?: string }) => {
               <div
                 // Triangle
                 className={cn(
-                  "max-w-8 absolute top-1/2 h-0 w-0 -translate-y-1/2 border-b-[8px] border-t-[8px] border-b-transparent border-t-transparent",
+                  "absolute top-1/2 h-0 w-0 max-w-8 -translate-y-1/2 border-b-[8px] border-t-[8px] border-b-transparent border-t-transparent",
 
                   isOwnComment(comment.userId)
                     ? "left-full border-l-[12px] border-l-secondary"
@@ -78,9 +79,11 @@ const CommentList = ({ className }: { className?: string }) => {
               {/* <div className="flex text-center text-sm">
                 {comment. ? comment.userName : "Anonymous User"}
               </div> */}
-              <div className="flex text-center text-xs">
-                {relativeTime.from(comment.updatedAt)}
-              </div>
+              {comment?.updatedAt ? (
+                <div className="flex text-center text-xs">
+                  {relativeTime.from(comment.updatedAt)}
+                </div>
+              ) : null}
             </div>
           </div>
         );
