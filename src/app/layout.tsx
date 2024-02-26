@@ -23,8 +23,8 @@ import LoadingSpinner from "~/components/ui/loading-spinner";
 import { Toaster } from "~/components/ui/toaster";
 
 export const metadata: Metadata = {
-  title: "Neffrey Starter",
-  description: "Just a quick lil starter template",
+  title: "Neffreys Todos",
+  description: "Just a quick lil todo app",
 };
 
 const RootLayout = ({ children }: { children: ReactNode }) => {

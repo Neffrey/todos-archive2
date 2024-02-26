@@ -6,16 +6,17 @@ import {
   type DefaultSession,
   type NextAuthOptions,
 } from "next-auth";
+import { type Adapter } from "next-auth/adapters";
 import GoogleProvider from "next-auth/providers/google";
 
 // UTILS
 import { env } from "~/env.mjs";
 import { db } from "~/server/db";
 import {
-  type UserRole,
   TasksTable,
   users,
   type ColorTheme,
+  type UserRole,
 } from "~/server/db/schema";
 
 /**
@@ -92,7 +93,7 @@ export const authOptions: NextAuthOptions = {
     },
   },
 
-  adapter: DrizzleAdapter(db, TasksTable),
+  adapter: DrizzleAdapter(db, TasksTable) as Adapter,
   providers: [
     GoogleProvider({
       clientId: env.GOOGLE_ID ? env.GOOGLE_ID : "",
