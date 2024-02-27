@@ -9,7 +9,7 @@ import { type ThemeProviderProps } from "next-themes/dist/types";
 const LdThemes = ["light", "dark"] as const;
 const DEFAULT_LD_THEME: (typeof LdThemes)[number] = "dark";
 
-const LightDarkProvider = ({ children, ...Props }: ThemeProviderProps) => {
+const LightDarkProvider = ({ children }: ThemeProviderProps) => {
   // set default LD theme
   React.useEffect(() => {
     const localLdTheme = window.localStorage.getItem("ld-theme");

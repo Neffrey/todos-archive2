@@ -10,7 +10,7 @@ import {
   protectedUserProcedure,
   userProcedure,
 } from "~/server/api/trpc";
-import { users, type ColorTheme, COLOR_THEMES } from "~/server/db/schema";
+import { users, COLOR_THEMES } from "~/server/db/schema";
 
 export const userRouter = createTRPCRouter({
   get: userProcedure.query(async ({ ctx }) => {

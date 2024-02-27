@@ -37,7 +37,7 @@ const ThemePicker = () => {
     } else window.localStorage.setItem("theme", currentTheme);
   }, [setCurrentTheme, currentTheme, themeList]);
 
-  const { data: session, update: updateSession } = useSession();
+  const { update: updateSession } = useSession();
 
   const editUser = api.user.edit.useMutation({
     onSuccess: async () => {

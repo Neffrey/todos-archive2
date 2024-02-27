@@ -1,7 +1,7 @@
 "use client";
 
 // LIBRARIES
-import { ReactNode, useEffect, useState } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 
 // PROPS
 interface OnRenderProps {

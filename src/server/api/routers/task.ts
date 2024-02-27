@@ -10,7 +10,7 @@ import {
   protectedUserProcedure,
   userProcedure,
 } from "~/server/api/trpc";
-import { TASK_TIMEFRAMES, tasks, type Task } from "~/server/db/schema";
+import { TASK_TIMEFRAMES, tasks } from "~/server/db/schema";
 
 export const taskRouter = createTRPCRouter({
   getAll: userProcedure.query(async ({ ctx }) => {
