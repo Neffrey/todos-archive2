@@ -5,7 +5,7 @@ import "~/app/globals.css";
 import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
 import type { Metadata } from "next";
 import { headers } from "next/headers";
-import { type ReactNode } from "react";
+import { Suspense, type ReactNode } from "react";
 import { extractRouterConfig } from "uploadthing/server";
 
 // UTILS
@@ -32,28 +32,30 @@ const RootLayout = ({ children }: { children: ReactNode }) => {
     <SessionProvider>
       <HtmlWrapper>
         <body className="custom-scrollbar">
-          <TRPCReactProvider headers={headers()}>
-            <LightDarkProvider>
-              <UseOnRender
-                fallback={
-                  <div className="absolute flex h-full w-full flex-col items-center justify-center gap-10 bg-cyan-800 text-slate-50">
-                    <LoadingSpinner className="h-20 w-20" />
-                    <h3 className="text-xl">Loading...</h3>
-                  </div>
-                }
-              >
-                <NextSSRPlugin
-                  routerConfig={extractRouterConfig(ourFileRouter)}
-                />
-                <Header />
-                <main className="flex min-h-screen w-full flex-col">
-                  {children}
-                </main>
-                <Toaster />
-                <Footer />
-              </UseOnRender>
-            </LightDarkProvider>
-          </TRPCReactProvider>
+          <Suspense fallback={null}>
+            <TRPCReactProvider headers={headers()}>
+              <LightDarkProvider>
+                <UseOnRender
+                  fallback={
+                    <div className="absolute flex h-full w-full flex-col items-center justify-center gap-10 bg-cyan-800 text-slate-50">
+                      <LoadingSpinner className="h-20 w-20" />
+                      <h3 className="text-xl">Loading...</h3>
+                    </div>
+                  }
+                >
+                  <NextSSRPlugin
+                    routerConfig={extractRouterConfig(ourFileRouter)}
+                  />
+                  <Header />
+                  <main className="flex min-h-screen w-full flex-col">
+                    {children}
+                  </main>
+                  <Toaster />
+                  <Footer />
+                </UseOnRender>
+              </LightDarkProvider>
+            </TRPCReactProvider>
+          </Suspense>
         </body>
       </HtmlWrapper>
     </SessionProvider>
